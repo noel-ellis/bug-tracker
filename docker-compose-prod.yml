@@ -3,7 +3,7 @@ services:
 
     # API container
     api:
-        image: noelellis/bug-tracker:latest
+        image: ${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY_NAME}:latest
 
         # start up the DB first
         depends_on:
