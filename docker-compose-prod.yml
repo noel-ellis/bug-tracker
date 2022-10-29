@@ -1,9 +1,9 @@
 version: "3"
 services:
-    
+
     # API container
     api:
-        image: yuio3owl/bugtracker:latest
+        image: noelellis/bug-tracker:latest
 
         # start up the DB first
         depends_on:
