@@ -133,7 +133,7 @@ def dummy_projects(authorized_client):
     projects = [
         {'name': 'project1', 'description': 'description1'},
         {'name': 'project2', 'description': 'description2', 'status': 'ongoing'},
-        {'name': 'project3', 'description': 'description3', 'status': 'ongoing', 'start': '2022-10-17', 'deadline': '2022-11-01'}
+        {'name': 'project3', 'description': 'description3', 'status': 'finished', 'start': '2022-10-17', 'deadline': '2022-11-01'}
     ]
 
     new_projects = []

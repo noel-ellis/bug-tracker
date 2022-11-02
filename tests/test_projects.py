@@ -14,6 +14,14 @@ def test_get_all(client, dummy_projects):
     assert new_projects[1]['description'] == dummy_projects[1]['description']
     assert new_projects[2]['description'] == dummy_projects[2]['description']
 
+
+# Get all projects [filtered]
+def test_get_all_status_filtered(client, dummy_projects):
+    res = client.get("/projects?status=finished")
+
+    assert res.status_code == 200
+    assert res.json()[0]['status'] == dummy_projects[2]['status']
+
 # Get one project
 def test_get_one(client, dummy_projects):
     

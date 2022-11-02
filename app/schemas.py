@@ -16,9 +16,9 @@ class RequestUserSignup(RequestUserBase):
 class RequestProject(BaseModel):
     name: str
     description: str
-    status: str = None
-    start: date = None
-    deadline: date = None
+    status: Optional[str] = None
+    start: Optional[date] = None
+    deadline: Optional[date] = None
 
 class RequestTicket(BaseModel):
     caption: str
@@ -127,10 +127,10 @@ class ProjectUpdateHistoryResponse(BaseModel):
     new_name: str
     old_description: str
     new_description: str
-    old_start: datetime = None
-    new_start: datetime = None
-    old_deadline: datetime = None
-    new_deadline: datetime = None
+    old_start: Optional[datetime] = None
+    new_start: Optional[datetime] = None
+    old_deadline: Optional[datetime] = None
+    new_deadline: Optional[datetime] = None
     old_status: str
     new_status: str
 

@@ -1,5 +1,6 @@
 from fastapi import status, HTTPException, Response, Depends, APIRouter
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from .. import models, schemas, oauth2
 from ..database import get_db
 from ..config import CHANGABLE_TICKET_ENTRIES
@@ -12,10 +13,37 @@ router = APIRouter(
 
 # Get all Tickets
 @router.get('/', response_model=List[schemas.TicketResponse])
-def get_tickets(db: Session = Depends(get_db), limit: int = 10, search: Optional[str] = ""):
+def get_tickets(db: Session = Depends(get_db), 
+                limit: int = 10, 
+                priority: Optional[int] = '', 
+                category: Optional[str] = '',
+                status: Optional[str] = '', 
+                search: Optional[str] = ''):
 
-    tickets = db.query(models.Ticket).filter(models.Ticket.caption.contains(search)).limit(limit).all()
-    return tickets
+    tickets = db.query(models.Ticket)
+
+    # Filter by priority
+    if priority != '':
+        tickets = tickets.filter(models.Ticket.priority == priority)
+
+    # Filter by category
+    if category != '':
+        tickets = tickets.filter(models.Ticket.category == category)
+
+    # Filter by status
+    if status != '':
+        tickets = tickets.filter(models.Ticket.status == status)
+
+    # Search
+    if search != '':
+        tickets_by_descr = tickets.filter(func.lower(models.Ticket.description).contains(search.lower())).limit(limit).all()
+        tickets_by_capt = tickets.filter(func.lower(models.Ticket.caption).contains(search.lower())).limit(limit).all()
+
+        result = list(set(tickets_by_descr + tickets_by_capt))
+
+        return result
+
+    return tickets.limit(limit).all()
 
 # Get one Ticket
 @router.get("/{id}", response_model=schemas.TicketOut)

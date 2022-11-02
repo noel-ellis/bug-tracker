@@ -1,5 +1,6 @@
 from fastapi import status, HTTPException, Response, Depends, APIRouter
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from .. import models, schemas, oauth2
 from ..database import get_db
 from ..config import CHANGABLE_PROJECT_ENTRIES
@@ -11,12 +12,30 @@ router = APIRouter(
 )
 
 # Get all Projects
-"""fix search and add filters"""
 @router.get('/', response_model=List[schemas.ProjectResponse])
-def get_projects(db: Session = Depends(get_db), limit: int = 10, search: Optional[str] = ""):
+def get_projects(db: Session = Depends(get_db), 
+                limit: Optional[int] = 10,
+                search: Optional[str] = "",
+                status: Optional[str] = "",
+                ):
 
-    projects = db.query(models.Project).filter(models.Project.name.contains(search)).limit(limit).all()
-    return projects
+    projects = db.query(models.Project)
+
+    # Filter by status
+    if status != '':
+        projects = projects.filter(models.Project.status == status)
+
+    # Search
+    if search != '':
+        projects_by_descr = projects.filter(func.lower(models.Project.description).contains(search.lower())).limit(limit).all()
+        projects_by_name = projects.filter(func.lower(models.Project.name).contains(search.lower())).limit(limit).all()
+
+        result = list(set(projects_by_descr + projects_by_name))
+
+        return result
+
+
+    return projects.limit(limit).all()
 
 # Get one Project
 @router.get("/{id}", response_model=schemas.ProjectOut)
