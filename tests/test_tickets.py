@@ -12,16 +12,44 @@ def test_get_all(client, dummy_tickets):
         assert tickets[i]['priority'] == dummy_tickets[i]['priority']
         assert tickets[i]['category'] == dummy_tickets[i]['category']
 
+# Get all tickets [filtered: priority]
+def test_get_all_priority_filtered(client, dummy_tickets):
+    res = client.get("/tickets?priority=1")
+
+    assert res.status_code == 200
+    assert len(res.json()) == 2
+
+# Get all tickets [filtered: category]
+def test_get_all_category_filtered(client, dummy_tickets):
+    res = client.get("/tickets?category=bug")
+
+    assert res.status_code == 200
+    assert len(res.json()) == 1
+
+# Get all tickets [filtered: status]
+def test_get_all_status_filtered(client, dummy_tickets):
+    res = client.get("/tickets?status=closed")
+
+    assert res.status_code == 200
+    assert len(res.json()) == 1
+
+# Get all tickets [search]
+def test_get_all_search(client, dummy_tickets):
+    res = client.get("/tickets?search=descr")
+
+    assert res.status_code == 200
+    assert len(res.json()) == 2
+
 # Get one ticket
 def test_get_one(client, dummy_tickets):
     res = client.get("/tickets/1")
     ticket = res.json()
 
     assert res.status_code == 200
-    assert ticket['ticket']['caption'] == dummy_tickets[0]['caption']
-    assert ticket['ticket']['description'] == dummy_tickets[0]['description']
-    assert ticket['ticket']['priority'] == dummy_tickets[0]['priority']
-    assert ticket['ticket']['category'] == dummy_tickets[0]['category']
+    assert ticket['ticket']['caption'] == dummy_tickets[2]['caption']
+    assert ticket['ticket']['description'] == dummy_tickets[2]['description']
+    assert ticket['ticket']['priority'] == dummy_tickets[2]['priority']
+    assert ticket['ticket']['category'] == dummy_tickets[2]['category']
 
 # Get non-existent ticket
 def test_get_one_wrong_id(client, dummy_tickets):

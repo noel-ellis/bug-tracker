@@ -22,6 +22,13 @@ def test_get_all_status_filtered(client, dummy_projects):
     assert res.status_code == 200
     assert res.json()[0]['status'] == dummy_projects[2]['status']
 
+# Get all projects [search]
+def test_get_all_search(client, dummy_projects):
+    res = client.get("/projects?search=descr")
+
+    assert res.status_code == 200
+    assert len(res.json()) == 2
+
 # Get one project
 def test_get_one(client, dummy_projects):
     

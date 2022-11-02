@@ -131,7 +131,7 @@ def dummy_users(client):
 # Created by test_user
 def dummy_projects(authorized_client):
     projects = [
-        {'name': 'project1', 'description': 'description1'},
+        {'name': 'project1', 'description': 'weird1'},
         {'name': 'project2', 'description': 'description2', 'status': 'ongoing'},
         {'name': 'project3', 'description': 'description3', 'status': 'finished', 'start': '2022-10-17', 'deadline': '2022-11-01'}
     ]
@@ -165,8 +165,8 @@ def dummy_tickets(authorized_client):
     new_tickets = []
     tickets = [
         {'caption': 'ticket1', 'description': 'description1', 'priority': 0, 'category': 'bug'},
-        {'caption': 'ticket2', 'description': 'description2', 'priority': 1, 'category': 'feature request'},
-        {'caption': 'ticket3', 'description': 'description3', 'priority': 2, 'category': 'other'}
+        {'caption': 'ticket2', 'description': 'weird3', 'priority': 1, 'category': 'feature request'},
+        {'caption': 'ticket3', 'description': 'description3', 'priority': 1, 'category': 'other'}
     ]
 
     for ticket in tickets:
@@ -174,7 +174,16 @@ def dummy_tickets(authorized_client):
         assert res.status_code == 201
         new_tickets.append(res.json())
 
-    return new_tickets
+    ticket = {
+        'status': 'closed'
+    }
+
+    res = authorized_client.put('/tickets/1', json=ticket)
+    assert res.status_code == 205
+
+    res = authorized_client.get('/tickets/')
+
+    return res.json()
 
 @pytest.fixture
 # Created by test_user
