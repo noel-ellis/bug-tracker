@@ -133,6 +133,7 @@ class ProjectUpdateHistoryResponse(BaseModel):
     new_deadline: Optional[datetime] = None
     old_status: str
     new_status: str
+    personnel_change: str
 
     editor: UserResponse
     # Use if retrieval of the original project is needed

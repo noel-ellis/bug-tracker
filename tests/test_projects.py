@@ -152,6 +152,7 @@ def test_assign(dummy_projects, dummy_users, authorized_client):
     assert len(project['personnel']) == 3
     assert project['personnel'][1]['id'] == '2'
     assert project['personnel'][2]['id'] == '3'
+    assert project['update_history'][0]['personnel_change'] == 'a;2;3'
     assert res.status_code == 201
 
 # Admin (id:5) assigns users (id:2, 3) to user's (id:1) project (id:1)
@@ -167,6 +168,7 @@ def test_assign_by_admin(dummy_projects, dummy_users, authorized_client_admin):
     assert len(project['personnel']) == 3
     assert project['personnel'][1]['id'] == '2'
     assert project['personnel'][2]['id'] == '3'
+    assert project['update_history'][0]['personnel_change'] == 'a;2;3'
     assert res.status_code == 201
 
 # User (id:1) attempts to assign users (id:2, 3) to non-existent project
@@ -231,6 +233,7 @@ def test_remove(dummy_projects, dummy_users, authorized_client):
     assert len(project['personnel']) == 3
     assert project['personnel'][1]['id'] == '2'
     assert project['personnel'][2]['id'] == '3'
+    assert project['update_history'][0]['personnel_change'] == 'a;2;3'
     assert res.status_code == 201
 
     # Remove
@@ -239,6 +242,7 @@ def test_remove(dummy_projects, dummy_users, authorized_client):
     project = project.json()
 
     assert len(project['personnel']) == 1
+    assert project['update_history'][1]['personnel_change'] == 'r;2;3'
     assert res.status_code == 204
 
 # Admin (id:5) removes users (id:2, 3) from user's (id:1) project (id:1)
@@ -255,6 +259,7 @@ def test_remove_by_admin(dummy_projects, dummy_users, authorized_client_admin):
     assert len(project['personnel']) == 3
     assert project['personnel'][1]['id'] == '2'
     assert project['personnel'][2]['id'] == '3'
+    assert project['update_history'][0]['personnel_change'] == 'a;2;3'
     assert res.status_code == 201
 
     # Remove
@@ -263,6 +268,7 @@ def test_remove_by_admin(dummy_projects, dummy_users, authorized_client_admin):
     project = project.json()
 
     assert len(project['personnel']) == 1
+    assert project['update_history'][1]['personnel_change'] == 'r;2;3'
     assert res.status_code == 204
 
 # User (id:1) attempts to remove users (id:2, 3) from non-existent project

@@ -121,7 +121,7 @@ def edit_project(id: str, user_request: schemas.RequestProjectUpdate, db: Sessio
     updated_data = dict(zip(entries_new, list(updated_data.values())))
     
     # Creating a new ProjectUpdateHistory entry
-    history_update = models.ProjectUpdateHistory(editor_id = current_user.id, project_id = id, **project_data, **updated_data)
+    history_update = models.ProjectUpdateHistory(editor_id = current_user.id, project_id = id, **project_data, **updated_data, personnel_change = '')
     db.add(history_update)
     db.commit()
     db.refresh(history_update)
@@ -166,10 +166,13 @@ def new_ticket(id: int, ticket_info: schemas.RequestTicket, db: Session = Depend
 
 # PERSONNEL
 # Assign personnel
-"""I can use URL encoding to fetch user ids instead"""
+"""It's probably possible to use URL encoding to fetch user ids instead"""
 @router.post("/{id}/addpersonnel", status_code=status.HTTP_201_CREATED)
 def assign_user(id: int, users: schemas.RequestAssignedUsers, db: Session = Depends(get_db), current_user: models.User = Depends(oauth2.get_current_user)):
     
+    # ===================================================================================================================================
+    # CHECKING THE POSSIBILY OF UPDATE
+    # ===================================================================================================================================
     # Check if project exists
     project = db.query(models.Project).filter(models.Project.id == id).first()
     if not project:
@@ -193,13 +196,39 @@ def assign_user(id: int, users: schemas.RequestAssignedUsers, db: Session = Depe
         connection = db.query(models.Personnel).filter(models.Personnel.project_id == id, models.Personnel.user_id == user_id).first()
         if connection:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f'user (ID:{user_id}) is already assigned to the project (ID:{id})')
+    # ===================================================================================================================================
 
     # Add personnel to the project
+    personnel_change_entry = 'a;' # Logging
     for user_id in users.ids:
+        personnel_change_entry += str(user_id) + ';' # Logging
         personnel = models.Personnel(user_id=user_id, project_id=id)
         db.add(personnel)
         db.commit()
         db.refresh(personnel)
+    
+    # ===================================================================================================================================
+    # SAVING CHANGES IN THE ProjectUpdateHistory
+    # ===================================================================================================================================
+    # Fixing log format
+    personnel_change_entry = personnel_change_entry[:-1]
+
+    # Logging event into project_updates table
+    # Fetching current project data without unchangable keys
+    project_data = {col.name: getattr(project, col.name) for col in project.__table__.columns if col.name in CHANGABLE_PROJECT_ENTRIES}
+
+    # Updating naming so dictionaries can be properly unpacked into the ProjectUpdateHistory object
+    entries_old = [f"old_{x}" for x in CHANGABLE_PROJECT_ENTRIES]
+    entries_new = [f"new_{x}" for x in CHANGABLE_PROJECT_ENTRIES]
+    updated_data = dict(zip(entries_new, list(project_data.values())))
+    project_data = dict(zip(entries_old, list(project_data.values())))
+    
+    # Creating a new ProjectUpdateHistory entry
+    history_update = models.ProjectUpdateHistory(editor_id = current_user.id, project_id = id, **project_data, **updated_data, personnel_change = personnel_change_entry)
+    db.add(history_update)
+    db.commit()
+    db.refresh(history_update)
+    # ===================================================================================================================================
 
     return Response(status_code=status.HTTP_201_CREATED)
 
@@ -208,6 +237,9 @@ def assign_user(id: int, users: schemas.RequestAssignedUsers, db: Session = Depe
 @router.post("/{id}/removepersonnel", status_code=status.HTTP_204_NO_CONTENT)
 def assign_user(id: int, users: schemas.RequestAssignedUsers, db: Session = Depends(get_db), current_user: models.User = Depends(oauth2.get_current_user)):
     
+    # ===================================================================================================================================
+    # CHECKING THE POSSIBILY OF UPDATE
+    # ===================================================================================================================================
     # Check if project exists
     project = db.query(models.Project).filter(models.Project.id == id).first()
     if not project:
@@ -231,12 +263,38 @@ def assign_user(id: int, users: schemas.RequestAssignedUsers, db: Session = Depe
         connection = db.query(models.Personnel).filter(models.Personnel.project_id == id, models.Personnel.user_id == user_id).first()
         if not connection:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'user (ID:{user_id}) is not assigned to the project (ID:{id})')
+    # ===================================================================================================================================
 
     # Remove personnel from the project
+    personnel_change_entry = 'r;' # Logging
     for user_id in users.ids:
+        personnel_change_entry += str(user_id) + ';' # Logging
         personnel_q = db.query(models.Personnel).filter(models.Personnel.user_id == user_id, models.Personnel.project_id == id)
         personnel_q.delete(synchronize_session=False)
         db.commit()
+
+    # ===================================================================================================================================
+    # SAVING CHANGES IN THE ProjectUpdateHistory
+    # ===================================================================================================================================
+    # Fixing log format
+    personnel_change_entry = personnel_change_entry[:-1]
+
+    # Logging event into project_updates table
+    # Fetching current project data without unchangable keys
+    project_data = {col.name: getattr(project, col.name) for col in project.__table__.columns if col.name in CHANGABLE_PROJECT_ENTRIES}
+
+    # Updating naming so dictionaries can be properly unpacked into the ProjectUpdateHistory object
+    entries_old = [f"old_{x}" for x in CHANGABLE_PROJECT_ENTRIES]
+    entries_new = [f"new_{x}" for x in CHANGABLE_PROJECT_ENTRIES]
+    updated_data = dict(zip(entries_new, list(project_data.values())))
+    project_data = dict(zip(entries_old, list(project_data.values())))
+    
+    # Creating a new ProjectUpdateHistory entry
+    history_update = models.ProjectUpdateHistory(editor_id = current_user.id, project_id = id, **project_data, **updated_data, personnel_change = personnel_change_entry)
+    db.add(history_update)
+    db.commit()
+    db.refresh(history_update)
+    # ===================================================================================================================================
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 

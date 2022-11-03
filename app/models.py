@@ -114,6 +114,8 @@ class ProjectUpdateHistory(Base):
     new_deadline = Column(TIMESTAMP(timezone=True), server_default=None)
     new_status = Column(String, server_default=None)
 
+    personnel_change = Column(String, server_default='')
+
     # Fetch user, project objects for given editor_id
     editor = relationship("User")
     project = relationship("Project")
