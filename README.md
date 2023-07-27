@@ -13,7 +13,7 @@
    - required for the db:
      - DATABASE_PASSWORD=(password, any)
      - DATABASE_NAME=(name, any)
-     - DATABASE_HOSTNAME=bugtracker_db
+     - DATABASE_HOSTNAME=db
      - DATABASE_PORT=(port, any available)
      - DATABASE_USERNAME=(username, any)
 
