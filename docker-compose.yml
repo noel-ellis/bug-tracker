@@ -1,10 +1,8 @@
 version: "3"
 services:
-    
-    # API container
+
     api:
         build: .
-        # start up the DB first
         depends_on:
             - db
         ports: 
@@ -15,14 +13,12 @@ services:
             - ./:/usr/src/app:ro
         command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     
-    # DB container
     db:
         image: postgres:14
         environment:
-            - POSTGRES_PASSWORD=password123
-            - POSTGRES_DB=bugtracker-db
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+            - POSTGRES_DB=${DATABASE_NAME}
 
-        # Postgres data will be stored here
         volumes:
             - db_data:/var/lib/postgresql/data
 
