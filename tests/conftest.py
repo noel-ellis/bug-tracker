@@ -8,7 +8,7 @@ from app.oauth2 import create_access_token
 import pytest
 
 # Setting up testing database
-SQLALCHEMY_DATABASE_URL = f'postgresql+psycopg2://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}_test'
+SQLALCHEMY_DATABASE_URL = f'postgresql+psycopg2://{settings.database_username}:{settings.test_database_password}@{settings.test_database_hostname}:{settings.database_port}/{settings.test_database_name}'
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
