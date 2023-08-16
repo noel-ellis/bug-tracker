@@ -19,8 +19,14 @@
 
 ## Running the App
 * use `docker-compose up` to run with logs appearing in the console
-* use `docker-compose up -d` to run in the background
+* OR use `docker-compose up -d` to run in the background
 * use `docker-compose down` to shut down the app
+
+## Testing
+* use `docker-compose up -d` to run the app in the background
+* run `docker exec -it bug-tracker-api-1 bash` to open the terminal inside the api container
+* run `pytest` to run tests
+* run `pytest --cov=app tests/` to run tests and generate test coverage report
 
 ## Troubleshooting
 - If for some reason server can't find any tables in the database, you'll need to create them:
