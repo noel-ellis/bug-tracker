@@ -4,3 +4,4 @@ venv/
 .env
 Bug Tracker_WS.code-workspace
 .coverage
+.DS_Store
